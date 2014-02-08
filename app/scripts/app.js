@@ -29,10 +29,18 @@ var events = [
 ];
 
 
+
+
 $(document).ready(function () {
   // select day container
   $calender = $('#day-container');
-  
+    
+  var getHeight = function (event) {
+    return (event.end - event.start) / 2;
+
+  };
+
+
 // sort the event array by start time
 events.sort(function(a,b) {
     return a.start - b.start;
@@ -40,7 +48,7 @@ events.sort(function(a,b) {
 
   
   $(events).each(function(index) {
-      var previous;
+      var prevItem, prevItemEnd;
       
       // throw the text and stuff in the div
     
@@ -54,7 +62,7 @@ events.sort(function(a,b) {
           $calender.append('<br style="clear:both;">');
         }
         // in either case, put the event on the calendar
-        $calender.append('<div class="event">' +this.start +' | ' + this.name + '</div>');
+        $calender.append('<div style="height:' + getHeight(this) + 'px;" class="event">' +this.start +' | ' + this.name + '</div>');
       }
 
       previous = this;
