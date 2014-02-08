@@ -48,7 +48,7 @@ events.sort(function(a,b) {
         var prevItem = index - 1;
         var prevItemEnd = events[index-1].end
         console.log('prevItemEnd: ' + prevItemEnd);
-        if (this.start < prevItemEnd) {
+        if (this.start > prevItemEnd) {
           // if it doesn't come after the previous one is done, put on new line?
 
           $calender.append('<br style="clear:both;">');
