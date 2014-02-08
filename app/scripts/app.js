@@ -18,12 +18,12 @@ var events = [
   {
     name: 'phone-call',
     start: 900,
-    end: 1200
+    end: 1000
   },
   {
     name: 'second breakfast',
     start: 930,
-    end: 1100
+    end: 1400
   }
 
 ];
@@ -125,12 +125,13 @@ events.sort(function(a,b) {
         if (this.start > prevItemEnd) {
           // if it doesn't come after the previous one is done, put on new line?
 
-          // $calender.append('<br style="clear:both;">');
+          $calender.append('<br style="clear:both;">');
         }
         // in either case, put the event on the calendar
       }
 
-       $calender.append('<div style="height:' + getHeight(this) + 'px; width:' + getWidth(this) + '%;' + '" class="event">' +this.start +' | ' + this.name + '</div>');
+      // this line needs to be refactored
+       $calender.append('<div style="height:' + getHeight(this) + 'px; width:' + getWidth(this) + '%;' + '" class="event">Start:' +this.start +' | ' + this.name + '<br>End: ' + this.end + '</div>');
 
       previous = this;
       
