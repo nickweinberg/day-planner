@@ -1,0 +1,70 @@
+var events = [
+  {
+    name: 'Concert',
+    start: 1600,
+    end: 2000
+  },
+  {
+    name: 'lunch',
+    start: 1200,
+    end: 1300
+  },
+  {
+    name: 'breakfast',
+    start: 800,
+    end: 900
+
+  },
+  {
+    name: 'phone-call',
+    start: 900,
+    end: 1400
+  },
+  {
+    name: 'second breakfast',
+    start: 930,
+    end:1100
+  },
+  {
+    name: 'second breakfast',
+    start: 930,
+    end:1100
+  }
+
+
+];
+
+
+$(document).ready(function () {
+  // select day container
+  $calender = $('#day-container');
+  
+
+// sort the event array by start time
+events.sort(function(a,b) {
+    return a.start - b.start;
+  });
+
+  // make an array of start times
+  $(events).each(function(index) {
+      var previous;
+      
+      // throw the text and stuff in the div
+    
+      if (index > 0) {
+        var prevItem = index - 1;
+        var prevItemEnd = events[index-1].end
+        console.log('prevItemEnd: ' + prevItemEnd);
+        if (this.start < prevItemEnd) {
+          // if it doesn't come after the previous one is done, put on new line?
+          $calender.append('<br style="clear:both;">');
+        }
+        // in either case, put the event on the calendar
+        $calender.append('<div class="event">' +this.start +' | ' + this.name + '</div>');
+      }
+
+      previous = this;
+      
+  });
+
+});
