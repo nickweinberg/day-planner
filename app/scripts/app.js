@@ -23,14 +23,8 @@ var events = [
   {
     name: 'second breakfast',
     start: 930,
-    end:1100
-  },
-  {
-    name: 'second breakfast',
-    start: 930,
-    end:1100
+    end: 1100
   }
-
 
 ];
 
@@ -39,13 +33,12 @@ $(document).ready(function () {
   // select day container
   $calender = $('#day-container');
   
-
 // sort the event array by start time
 events.sort(function(a,b) {
     return a.start - b.start;
   });
 
-  // make an array of start times
+  
   $(events).each(function(index) {
       var previous;
       
@@ -57,6 +50,7 @@ events.sort(function(a,b) {
         console.log('prevItemEnd: ' + prevItemEnd);
         if (this.start < prevItemEnd) {
           // if it doesn't come after the previous one is done, put on new line?
+
           $calender.append('<br style="clear:both;">');
         }
         // in either case, put the event on the calendar
