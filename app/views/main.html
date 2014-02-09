@@ -1,0 +1,117 @@
+<style type="text/css">
+  #svg-container {
+    height: 1000px;
+    width: 700px;
+  }
+
+</style>
+<div id="svg-container">
+  
+</div>
+
+<div class="footer">
+  <p>Daily Planner</p>
+</div>
+
+<script>
+var $container = $('#svg-container');
+var svgWidth = $container.innerWidth(),
+    svgHeight = $container.innerHeight();
+
+  //
+  var events = [ // array of event objects
+                  {
+                    name : 'breakfast',
+                    start: 800,
+                    end  : 900
+                  },
+                  {
+                    name : 'lunch',
+                    start: 1200,
+                    end  : 1300
+                  },
+                  {
+                    name : 'house party',
+                    start: 1800,
+                    end  : 2200
+                  }
+              ];
+
+  var x = d3.scale.linear() // creates linear scale
+            .domain([0, d3.max(events)]) // domain
+            .range([0 , svgWidth]);
+  
+  var y = d3.time.scale()
+            .domain(
+              [
+                new Date(2011, 0, 1), 
+                new Date(2011, 0, 1, 23, 59)
+              ]).range([0, svgHeight]);
+
+
+  
+
+  // SVG we will draw to
+  
+  var svg = d3.select('#svg-container')
+              .append('svg')
+              .attr('class', 'chart')
+              .attr('width', svgWidth)
+              .attr('height', svgHeight)
+              .append('g')
+              
+  var axisGroup = svg.append('g')
+
+  // Draw y-axis ticks
+  axisGroup.selectAll('.axis')
+           .data(d3.range(0, 24)) // 24 hours
+           .enter().append('line')
+           .attr('x1', -5)
+           // Round and add 0.5 to fix anti-aliasing effects
+           .attr("y1", function(d) { return d3.round(y(new Date(2011, 0, 1, d))) + 0.5; })
+           .attr("x2", svgWidth+5)
+           .attr("y2", function(d) { return d3.round(y(new Date(2011, 0, 1, d))) + 0.5; })
+           .attr("stroke", "lightgray")
+           .attr("class", "yTicks");
+  
+  // Draw y-axis labels of hours
+  axisGroup.selectAll("text.yAxisLeft")
+          .data(d3.range(0, 24))
+          .enter()
+          .append("text")
+          .text(function(d) { return d + ":00";})
+          .attr("x", 60)
+          .attr("y", function(d) { return y(new Date(2011, 0, 1, d)); })
+          .attr("dy", "15")
+          .attr("class", "yAxisLeft")
+          .attr("text-anchor", "end");
+  
+/*
+  svg.selectAll('rect')
+     .data(events)
+     .enter().append('rect')
+     .attr('x', function (d, index) { return index * 50; })
+     .attr('y', 100)
+     .attr('height', function (d, index) { return (d.end - d.start) / 10; })
+     .attr('width', 40);
+
+
+
+  svg.selectAll('rect')
+           .data(events)
+           .enter()
+           .append('rect')
+           .attr('width', function(d) {
+              return d.end - d.start / 80;
+           })
+           .attr('height', function(d) {
+              return d.end - d.start; // height is start time - end time aka duration
+           })
+           .attr('x', function(d) { return d.end / 10 })
+           .attr('y', function(d) { return d.start / 100 }) 
+           .style('fill', function (d) {
+                var color = d.start.toString().slice(0,2);
+                return '#' + color + '44' + color;
+           });
+*/  
+</script>
