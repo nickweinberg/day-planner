@@ -83,7 +83,7 @@ var events = [
 var eventsInHour = {};
 
 var eventsInTimeframe = function(event, query) {
-  // query is string, should be either current or total
+  // query is string, should be either 'current' or 'total'
   var currentLargest = 0, i;
 
   // should check here
@@ -107,19 +107,15 @@ var getWidth = function (event) {
   // a time frame
   var currentLargest = eventsInTimeframe(event, 'total');
 
+  var elementWidth = Math.floor(eventCanvasWidth / currentLargest);
 
-  console.log(currentLargest);
+  event.width = elementWidth;
+
+  console.log(elementWidth);
   // calculate width, floor for edge cases
-  return Math.floor(eventCanvasWidth / currentLargest);
+  return elementWidth;
 };
 
-var getXpos = function (event) {
-  // should be equal width * current
-
-  // console.log('This element ' + event.name + ' ' + getWidth(event));
-  return getWidth(event) * eventsInTimeframe(event, 'current');
-
-};
 
 // updates events An Hour
 var createEventsInHours = function () {
@@ -137,6 +133,17 @@ var createEventsInHours = function () {
       }
     }
   }
+  
+  // go through and assign total max width per element
+  // per houra
+  $.each(eventsInHour, function (index) {
+    
+    eventsInHour[index].maxWidthPerElement = Math.floor(eventCanvasWidth / eventsInHour[index].total);
+    eventsInHour[index].widthLeft = eventCanvasWidth;
+  });
+
+  console.log(eventsInHour);
+  return;
 };
 
 var updateHours = function(event) {
@@ -226,16 +233,36 @@ events.sort(function(a, b) {
      .attr('y', function (d, index) { return y(d.start) + 2;})
      .attr('height', function (d, index) { return y((d.end - d.start + 1)); })
      .attr('width', function (d) { 
-          var elWidth = getWidth(d);
-          return elWidth;
+          // var elWidth = getWidth(d);
+          // return elWidth;
+          // console.log(d.width);
+          var currentMin = eventCanvasWidth,
+              minIndex   = 0;
+          // go through get largest width
+          for (var i=d.start;i<=d.end;i+=1) {
+            if (eventsInHour[i].maxWidthPerElement < currentMin) {
+              currentMin = eventsInHour[i].maxWidthPerElement;
+              minIndex = i;
+            }
+          }
+          // subtract this width from widthLeft in all hours
+
+
+          console.log(d.name + ' ' + currentMin);
+          return currentMin;
         })
      .attr('x', function (d, index) {
-          var xPos = getXpos(d);
+          var xPos = getWidth(d) * eventsInTimeframe(d, 'current');
           // if xPos is less than leftMargin we add to it so 
           // it won't cover text
           updateHours(d); // mark that we're placing it
+
+
+          // should be 3px from 
+
+          console.log(eventsInTimeframe(d, 'current'));
+          d.location = xPos; // add location key to object for reference on the text
           return xPos;
-          
         });
 
   // Draw y-axis labels of hours
@@ -245,11 +272,8 @@ events.sort(function(a, b) {
           .append("text")
           .text(function(d) { return d.name;})
           .attr('x', function (d, index) {
-            var xPos = getXpos(d);
-            // if xPos is less than leftMargin we add to it so 
-            // it won't cover text
-            updateHours(d); // mark that we're placing it
-            return xPos;
+
+            return d.location + 100;
           })
           .attr('y', function (d, index) { return y(d.start) + 2;})
           .attr("dy", "15")
@@ -257,34 +281,4 @@ events.sort(function(a, b) {
           .attr("text-anchor", "end");    
               
 
-
-  
-/*
-  svg.selectAll('rect')
-     .data(events)
-     .enter().append('rect')
-     .attr('x', function (d, index) { return index * 50; })
-     .attr('y', 100)
-     .attr('height', function (d, index) { return (d.end - d.start) / 10; })
-     .attr('width', 40);
-
-
-
-  svg.selectAll('rect')
-           .data(events)
-           .enter()
-           .append('rect')
-           .attr('width', function(d) {
-              return d.end - d.start / 80;
-           })
-           .attr('height', function(d) {
-              return d.end - d.start; // height is start time - end time aka duration
-           })
-           .attr('x', function(d) { return d.end / 10 })
-           .attr('y', function(d) { return d.start / 100 }) 
-           .style('fill', function (d) {
-                var color = d.start.toString().slice(0,2);
-                return '#' + color + '44' + color;
-           });
-*/  
 </script>
