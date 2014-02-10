@@ -1,6 +1,6 @@
 # Day Planner
 
-[Online Example][http://day-planner.herokuapp.com/#/]
+[Online Example](http://day-planner.herokuapp.com/#/)
 
 ![ScreenShot](http://i.imgur.com/SDfV5Bs.png)
 
