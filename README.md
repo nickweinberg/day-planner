@@ -1,3 +1,5 @@
 # day planner
 
-Also have branch to try it using a table.
+Added branch for d3.
+
+[Imgur](http://i.imgur.com/SDfV5Bs.png)
