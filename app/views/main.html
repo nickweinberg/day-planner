@@ -3,8 +3,16 @@
     height: 700px;
     width: 700px;
   }
+
+  input[type='text'] {
+    width: 100%;
+  }
   
 </style>
+<!-- Button trigger modal -->
+<button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+  Add An Event
+</button>
 <div id="svg-container">
   
 </div>
@@ -12,19 +20,48 @@
 <div class="footer">
   <p>Daily Planner</p>
 </div>
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Create an Event</h4>
+      </div>
+      <div class="modal-body">
+        <div class="input-group">
+          <span class="input-group-addon">Start</span><input type="text" id="start" />
+        </div>
+        <div class="input-group">
+          <span class="input-group-addon">End</span><input type="text" id="end" />
+        </div>
+        <div class="input-group"> 
+          <span class="input-group-addon">Name</span><input type="text" id="name" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" id="save-button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <script>
 
+$(document).ready(function() {
 // remember to declare all your variables up here first
 var $container = $('#svg-container');
 var svgWidth = $container.innerWidth(),
     svgHeight = $container.innerHeight(),
     leftMargin = 75, // so event rectangles don't cover time text
     borderSize = 3
-    eventCanvasWidth = svgWidth - leftMargin;
-
+    eventCanvasWidth = svgWidth - leftMargin,
+    events = [];
 
 // hardcoded array of objects with event details
+/*
 function createRandomEvents () {
 var events = [
                 {
@@ -76,7 +113,8 @@ var events = [
             ];
   return events;
 }
-/*
+*/
+
 var createRandomEvents = function () {
   // create random data in form
   // [ { name: 'random', start: int 0-23, end: int larger than start
@@ -100,7 +138,7 @@ var createRandomEvents = function () {
   }
   return events;
 };
-*/
+
 // an array of objects holding how many events occur in an hour
 // has 'total' amount of events that occur in that hour
 // and 'current' which is the amount of events on chart currently
@@ -181,37 +219,17 @@ var updateHours = function(event) {
 }
 
 // create random event data
-events = createRandomEvents();
+// events = createRandomEvents();
 
-// create eventsInHours object
-createEventsInHours();
-
-
-// sorts events by start time
-// this isn't strictly necessary but eliminates some edge cases
-// currently where a long event that starts before everything
-// else will be placed in the middle covering other events
-events.sort(function(a, b) {
-  return a.start - b.start;
-});
-
-console.log(events);
-
-/*
-  var x = d3.scale.linear() // creates linear scale
-            .domain([0, d3.max(events)]) // domain
-            .range([0 , svgWidth]);
-*/
+var setup = function() {
+  // sets everything up
 
   var y = d3.time.scale()
             .domain([0,24])
             .range([0, svgHeight]);
 
   y.ticks(d3.time.hour, 1);
-
-  
-
-  // SVG we will draw to
+    // SVG we will draw to
   
   var svg = d3.select('#svg-container')
               .append('svg')
@@ -245,12 +263,46 @@ console.log(events);
           .attr("class", "yAxisLeft")
           .attr("text-anchor", "end");
 
-
   var eventCanvas = svg.append('svg')
-                      .attr('x', leftMargin)
-                      .attr('width', eventCanvasWidth)
-                      .attr('height', svgHeight);
+                  .attr('class', 'eventcanvas')
+                  .attr('x', leftMargin)
+                  .attr('width', eventCanvasWidth)
+                  .attr('height', svgHeight);
 
+  return;
+};
+
+var draw = function () {
+// create eventsInHours object
+var svg = d3.select('#svg-container')
+
+if (events.length <= 1) {
+  setup();
+} else {
+  // d3.select("svg.eventcanvas").remove();
+  d3.select('svg').remove();
+  setup();
+}
+
+var eventCanvas = d3.select('svg.eventcanvas');
+console.log(eventCanvas);
+
+eventsInHour = {};
+createEventsInHours();
+// sorts events by start time
+// this isn't strictly necessary but eliminates some edge cases
+// currently where a long event that starts before everything
+// else will be placed in the middle covering other events
+events.sort(function(a, b) {
+  return a.start - b.start;
+});
+
+
+  var y = d3.time.scale()
+            .domain([0,24])
+            .range([0, svgHeight]);
+
+  y.ticks(d3.time.hour, 1);
 
 
   // draw a rectangle event
@@ -310,6 +362,34 @@ console.log(events);
           .attr("dy", "15")
           .attr("class", "yAxisLeft")
           .attr("text-anchor", "end");    
-              
+  };
 
+
+  // Click modal save button, create a new event
+  $('#save-button').on('click', function () {
+    // grab data from input boxes
+    var start, end, name;
+
+    start = Number($('#start').val());
+    end   = Number($('#end').val());
+    name  = $('#name').val();
+
+    // close modal
+    $('#myModal').modal('hide');
+
+    // push data to events
+    events.push({
+      start: start,
+      end  : end,
+      name : name
+    });
+
+    console.log(events);
+    // redraw map
+    draw();
+
+
+  });
+
+});
 </script>
