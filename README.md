@@ -16,4 +16,6 @@ correctly.
 3. Tests
 4. Update elements instead of redrawing everything everytime we add
 something (redrawing everything is super expensive).
-5. Move everything to Angular, turn d3 code into a directive.  
+5. Move everything to Angular, turn d3 code into a directive.
+6. Add form validation (Shouldn't let you submit nothing. Shouldn't
+   allow end time happening before start time. Only allow 0-23 times). 

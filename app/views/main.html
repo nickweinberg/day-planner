@@ -288,12 +288,12 @@ console.log(eventCanvas);
 
 eventsInHour = {};
 createEventsInHours();
-// sorts events by start time
+
+// sort by start time and THEN by duration
+
 // this isn't strictly necessary but eliminates some edge cases
 // currently where a long event that starts before everything
 // else will be placed in the middle covering other events
-
-// sort by start time and THEN by duration
 events.sort(function(a, b) {
   if (a.start > b.start) {
     return 1;
