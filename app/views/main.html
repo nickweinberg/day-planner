@@ -25,7 +25,7 @@ var svgWidth = $container.innerWidth(),
 
 
 // hardcoded array of objects with event details
-/*
+function createRandomEvents () {
 var events = [
                 {
                   name: 'early',
@@ -56,7 +56,7 @@ var events = [
                   isPlaced: false
                 },
                                 {
-                  name: 'turmoil',
+                  name: 'book club',
                   start: 2,
                   end  : 20
                 },
@@ -74,8 +74,9 @@ var events = [
                 
 
             ];
-*/
-
+  return events;
+}
+/*
 var createRandomEvents = function () {
   // create random data in form
   // [ { name: 'random', start: int 0-23, end: int larger than start
@@ -99,7 +100,7 @@ var createRandomEvents = function () {
   }
   return events;
 };
-
+*/
 // an array of objects holding how many events occur in an hour
 // has 'total' amount of events that occur in that hour
 // and 'current' which is the amount of events on chart currently
