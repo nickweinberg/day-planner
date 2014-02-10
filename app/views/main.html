@@ -1,9 +1,9 @@
 <style type="text/css">
   #svg-container {
-    height: 1000px;
+    height: 700px;
     width: 700px;
   }
-
+  
 </style>
 <div id="svg-container">
   
@@ -14,40 +14,131 @@
 </div>
 
 <script>
+
+// remember to declare all your variables up here first
 var $container = $('#svg-container');
 var svgWidth = $container.innerWidth(),
     svgHeight = $container.innerHeight();
 
-  //
-  var events = [ // array of event objects
-                  {
-                    name : 'breakfast',
-                    start: 800,
-                    end  : 900
-                  },
-                  {
-                    name : 'lunch',
-                    start: 1200,
-                    end  : 1300
-                  },
-                  {
-                    name : 'house party',
-                    start: 1800,
-                    end  : 2200
-                  }
-              ];
+var leftMargin = 75; // so event rectangles don't cover time text
 
+// hardcoded array of objects with event details
+var events = [
+                {
+                  name : 'breakfast 2',
+                  start: 7,
+                  end  : 9,
+                  isPlaced: false
+                },
+                {
+                  name : 'breakfast',
+                  start: 8,
+                  end  : 9,
+                  isPlaced: false
+                },
+                {
+                  name : 'lunch',
+                  start: 12,
+                  end  : 13,
+                  isPlaced: false
+                },
+                {
+                  name : 'house party',
+                  start: 18,
+                  end  : 22,
+                  isPlaced: false
+                }
+            ];
+
+
+// an array of objects holding how many events occur in an hour
+// has 'total' amount of events that occur in that hour
+// and 'current' which is the amount of events on chart currently
+// this is for calculating the x position and width correctly
+
+var eventsInHour = {};
+
+var eventsInTimeframe = function(event, query) {
+  // query is string, should be either current or total
+  var currentLargest = 0, i;
+
+  // should check here
+  if (query !== 'total' && query !== 'current') {
+    alert('query should be total or current');
+    return;
+  }
+
+  for (i=event.start;i<=event.end;i+=1) {
+    if (eventsInHour[i][query] > currentLargest) {
+      currentLargest = eventsInHour[i][query];
+    }
+  }
+
+  return currentLargest;
+};
+
+var getWidth = function (event) {
+  // goes through hours
+  // width is equal to largest amount of total events that occur in
+  // a time frame
+  var currentLargest = eventsInTimeframe(event, 'total');
+
+  // calculate width, floor for edge cases
+  return Math.floor(svgWidth / currentLargest) - leftMargin - 2; // -2 for border size
+};
+
+var getXpos = function (event) {
+  // should be equal width * current
+
+  console.log(getWidth(event));
+  console.log(eventsInTimeframe(event, 'current'));
+  return getWidth(event) * eventsInTimeframe(event, 'current');
+
+};
+
+// updates events An Hour
+var createEventsInHours = function () {
+  // iterate through each event marking its hours
+  for (var j=0; j<events.length; j+=1) {
+    var event = events[j];
+
+    for (var i=event.start;i<=event.end;i+=1) {
+      // if eventsInHour has that hour
+      if (i in eventsInHour) {
+        eventsInHour[i].total += 1;
+      } else {
+        // create new object in eventsInHour
+        eventsInHour[i] = {total: 1, current: 0};
+      }
+    }
+  }
+};
+
+var updateHours = function(event) {
+  // update
+    for (var i=event.start;i<=event.end;i+=1) {
+      eventsInHour[i].current += 1;
+    }
+    // update event as placed
+    event.isPlaced = true;
+}
+
+// create eventsInHours object
+createEventsInHours();
+
+
+
+/*
   var x = d3.scale.linear() // creates linear scale
             .domain([0, d3.max(events)]) // domain
             .range([0 , svgWidth]);
-  
-  var y = d3.time.scale()
-            .domain(
-              [
-                new Date(2011, 0, 1), 
-                new Date(2011, 0, 1, 23, 59)
-              ]).range([0, svgHeight]);
+*/
 
+  var y = d3.time.scale()
+            .domain([0,24])
+            .range([0, svgHeight]);
+
+  y.ticks(d3.time.hour, 1);
 
   
 
@@ -58,8 +149,7 @@ var svgWidth = $container.innerWidth(),
               .attr('class', 'chart')
               .attr('width', svgWidth)
               .attr('height', svgHeight)
-              .append('g')
-              
+
   var axisGroup = svg.append('g')
 
   // Draw y-axis ticks
@@ -68,12 +158,12 @@ var svgWidth = $container.innerWidth(),
            .enter().append('line')
            .attr('x1', -5)
            // Round and add 0.5 to fix anti-aliasing effects
-           .attr("y1", function(d) { return d3.round(y(new Date(2011, 0, 1, d))) + 0.5; })
-           .attr("x2", svgWidth+5)
-           .attr("y2", function(d) { return d3.round(y(new Date(2011, 0, 1, d))) + 0.5; })
+           .attr("y1", function(d) { return y(d) + 0.5; })
+           .attr("x2", svgWidth)
+           .attr("y2", function(d) { return y(d)+ 0.5; })
            .attr("stroke", "lightgray")
            .attr("class", "yTicks");
-  
+           
   // Draw y-axis labels of hours
   axisGroup.selectAll("text.yAxisLeft")
           .data(d3.range(0, 24))
@@ -81,10 +171,46 @@ var svgWidth = $container.innerWidth(),
           .append("text")
           .text(function(d) { return d + ":00";})
           .attr("x", 60)
-          .attr("y", function(d) { return y(new Date(2011, 0, 1, d)); })
+          .attr("y", function(d) { return y(d); })
           .attr("dy", "15")
           .attr("class", "yAxisLeft")
           .attr("text-anchor", "end");
+
+
+  var eventGroup = svg.append('g')
+                      .attr('x', 200)
+                      .attr('width', svgWidth - 500)
+                      .attr('height', svgHeight);
+
+
+  events.forEach(function (d) {
+    console.log('hi');
+  });
+
+  // draw a rectangle event
+  svg.selectAll('rect')
+    .data(events)
+     .enter().append('rect')
+     .attr("fill", function() { return "hsl(" + Math.random() * 360 + ", 100%, 75%)" })
+     .attr('stroke', '#333')
+     .attr('stroke-width', 3)
+     //.transition().duration(1000).delay(1000)
+     .attr('y', function (d, index) { return y(d.start);})
+     .attr('height', function (d, index) { return y((d.end - d.start + 1)); })
+     .attr('width', function(d) { 
+          
+          return getWidth(d); 
+        })
+     .attr('x', function(d) {
+          var xPos = getXpos(d);
+          updateHours(d); // mark that we're placing it
+
+          return leftMargin + xPos;
+        });
+
+              
+
+
   
 /*
   svg.selectAll('rect')

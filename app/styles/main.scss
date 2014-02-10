@@ -11,16 +11,14 @@ body {
     padding-bottom: 20px;
 }
 
-.chart rect {
-    stroke: white;
-    fill: steelblue;
-}
 
 .axis path, .axis line {
     fill: none;
     stroke: #333;
     shape-rendering: crispEdges;
 }
+
+
 
 .yAxisLeft {
     color: #333;
