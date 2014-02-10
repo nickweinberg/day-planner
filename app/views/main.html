@@ -18,12 +18,24 @@
 // remember to declare all your variables up here first
 var $container = $('#svg-container');
 var svgWidth = $container.innerWidth(),
-    svgHeight = $container.innerHeight();
+    svgHeight = $container.innerHeight(),
+    leftMargin = 75, // so event rectangles don't cover time text
+    borderSize = 3
+    eventCanvasWidth = svgWidth - leftMargin;
 
-var leftMargin = 75; // so event rectangles don't cover time text
 
 // hardcoded array of objects with event details
 var events = [
+                {
+                  name: 'early',
+                  start: 0,
+                  end: 1
+                },
+                {
+                  name: 'other',
+                  start: 3,
+                  end: 4
+                },
                 {
                   name : 'breakfast 2',
                   start: 7,
@@ -39,15 +51,27 @@ var events = [
                 {
                   name : 'lunch',
                   start: 12,
-                  end  : 13,
+                  end  : 18,
                   isPlaced: false
+                },
+                                {
+                  name: 'turmoil',
+                  start: 2,
+                  end  : 20
                 },
                 {
                   name : 'house party',
                   start: 18,
                   end  : 22,
                   isPlaced: false
-                }
+                },
+                {
+                  name: 'watch out!',
+                  start: 16,
+                  end  : 18
+                },
+                
+
             ];
 
 
@@ -83,15 +107,16 @@ var getWidth = function (event) {
   // a time frame
   var currentLargest = eventsInTimeframe(event, 'total');
 
+
+  console.log(currentLargest);
   // calculate width, floor for edge cases
-  return Math.floor(svgWidth / currentLargest) - leftMargin - 2; // -2 for border size
+  return Math.floor(eventCanvasWidth / currentLargest);
 };
 
 var getXpos = function (event) {
   // should be equal width * current
 
-  console.log(getWidth(event));
-  console.log(eventsInTimeframe(event, 'current'));
+  // console.log('This element ' + event.name + ' ' + getWidth(event));
   return getWidth(event) * eventsInTimeframe(event, 'current');
 
 };
@@ -119,13 +144,19 @@ var updateHours = function(event) {
     for (var i=event.start;i<=event.end;i+=1) {
       eventsInHour[i].current += 1;
     }
-    // update event as placed
-    event.isPlaced = true;
+
 }
 
 // create eventsInHours object
 createEventsInHours();
 
+// sorts events by start time
+// this isn't strictly necessary but eliminates some edge cases
+// currently where a long event that starts before everything
+// else will be placed in the middle covering other events
+events.sort(function(a, b) {
+  return a.start - b.start;
+});
 
 
 /*
@@ -177,37 +208,53 @@ createEventsInHours();
           .attr("text-anchor", "end");
 
 
-  var eventGroup = svg.append('g')
-                      .attr('x', 200)
-                      .attr('width', svgWidth - 500)
+  var eventCanvas = svg.append('svg')
+                      .attr('x', leftMargin)
+                      .attr('width', eventCanvasWidth)
                       .attr('height', svgHeight);
 
 
-  events.forEach(function (d) {
-    console.log('hi');
-  });
 
   // draw a rectangle event
-  svg.selectAll('rect')
+  var eventRectangles = eventCanvas.selectAll('rect')
     .data(events)
      .enter().append('rect')
      .attr("fill", function() { return "hsl(" + Math.random() * 360 + ", 100%, 75%)" })
      .attr('stroke', '#333')
      .attr('stroke-width', 3)
      //.transition().duration(1000).delay(1000)
-     .attr('y', function (d, index) { return y(d.start);})
+     .attr('y', function (d, index) { return y(d.start) + 2;})
      .attr('height', function (d, index) { return y((d.end - d.start + 1)); })
-     .attr('width', function(d) { 
-          
-          return getWidth(d); 
+     .attr('width', function (d) { 
+          var elWidth = getWidth(d);
+          return elWidth;
         })
-     .attr('x', function(d) {
+     .attr('x', function (d, index) {
           var xPos = getXpos(d);
+          // if xPos is less than leftMargin we add to it so 
+          // it won't cover text
           updateHours(d); // mark that we're placing it
-
-          return leftMargin + xPos;
+          return xPos;
+          
         });
 
+  // Draw y-axis labels of hours
+  eventCanvas.selectAll("text")
+          .data(events)
+          .enter()
+          .append("text")
+          .text(function(d) { return d.name;})
+          .attr('x', function (d, index) {
+            var xPos = getXpos(d);
+            // if xPos is less than leftMargin we add to it so 
+            // it won't cover text
+            updateHours(d); // mark that we're placing it
+            return xPos;
+          })
+          .attr('y', function (d, index) { return y(d.start) + 2;})
+          .attr("dy", "15")
+          .attr("class", "yAxisLeft")
+          .attr("text-anchor", "end");    
               
 
 
