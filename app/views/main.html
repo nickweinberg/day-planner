@@ -25,6 +25,7 @@ var svgWidth = $container.innerWidth(),
 
 
 // hardcoded array of objects with event details
+/*
 var events = [
                 {
                   name: 'early',
@@ -73,7 +74,31 @@ var events = [
                 
 
             ];
+*/
 
+var createRandomEvents = function () {
+  // create random data in form
+  // [ { name: 'random', start: int 0-23, end: int larger than start
+  // 0-23}];
+  var events = [],
+      i, start, end;
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+
+  // random num of events 5 - 20
+  for (i=0;i<=getRandomInt(5, 20);i+=1) {
+    start = getRandomInt(0,22);
+    end   = getRandomInt(start + 1, 23);
+    events.push({
+      name : i,
+      start: start,
+      end  : end
+    }); 
+  }
+  return events;
+};
 
 // an array of objects holding how many events occur in an hour
 // has 'total' amount of events that occur in that hour
@@ -154,8 +179,12 @@ var updateHours = function(event) {
 
 }
 
+// create random event data
+events = createRandomEvents();
+
 // create eventsInHours object
 createEventsInHours();
+
 
 // sorts events by start time
 // this isn't strictly necessary but eliminates some edge cases
@@ -165,6 +194,7 @@ events.sort(function(a, b) {
   return a.start - b.start;
 });
 
+console.log(events);
 
 /*
   var x = d3.scale.linear() // creates linear scale
